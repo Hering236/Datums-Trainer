@@ -1,7 +1,7 @@
 {
   "name": "Trainer App",
   "short_name": "Trainer",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a90e2",
