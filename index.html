@@ -1,203 +1,489 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<link rel="manifest" href="manifest.json">
 
 <meta charset="UTF-8">
 <meta name="theme-color" content="#4a90e2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Zufallsdatum Trainer</title>
+<link rel="manifest" href="manifest.json">
+
+<title>Trainer App</title>
 
 <style>
 body {
-    font-family: Arial, sans-serif;
-    max-width: 400px;
-    margin: 30px auto;
+    font-family: Arial;
+    max-width: 450px;
+    margin: auto;
     padding: 15px;
     text-align: center;
 }
 
-h1 {
-    margin-bottom: 20px;
-}
+.screen { display: none; }
+.active { display: block; }
 
-input, select, button {
+button {
     width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
+    padding: 12px;
+    margin: 8px 0;
     font-size: 16px;
 }
 
-#dateDisplay {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 20px 0;
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 16px;
+    box-sizing: border-box;
 }
 
-#result {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 10px;
+h1 {
+    margin-bottom: 15px;
 }
 
-.correct {
-    color: green;
+.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 10px 0;
 }
 
-.wrong {
-    color: red;
-}
+.correct { color: green; font-weight: bold; }
+.wrong { color: red; font-weight: bold; }
 
-#timer {
-    margin-top: 10px;
-    font-size: 18px;
+.big {
+    font-size: 26px;
+    margin: 10px 0;
 }
 </style>
+
 </head>
 
 <body>
 
-<h1>Zufallsdatum Trainer</h1>
+<!-- ================= HOME ================= -->
+<div id="home" class="screen active">
+    <h1>Trainer App</h1>
 
-<label>Jahresspanne (+/-)</label>
-<input type="number" id="years" value="50">
+    <button onclick="showScreen('practice')">Üben</button>
+    <button onclick="showScreen('gameSetup')">Spielen</button>
+</div>
 
-<button id="generateBtn">Datum generieren</button>
+<!-- ================= ÜBEN ================= -->
+<div id="practice" class="screen">
+    <h1>Üben</h1>
 
-<div id="dateDisplay"></div>
+    <div class="card">
+        <button onclick="openTrainer('date')">📅 Datum Trainer</button>
+        <button onclick="openTrainer('month')">📆 Monats Trainer</button>
+        <button onclick="openTrainer('div4')">➗ Division durch 4 (ohne Rest)</button>
+        <button onclick="openTrainer('mod7')">➗ Rest durch 7</button>
+    </div>
 
-<select id="weekday">
-    <option value="">Wochentag auswählen</option>
-    <option>Montag</option>
-    <option>Dienstag</option>
-    <option>Mittwoch</option>
-    <option>Donnerstag</option>
-    <option>Freitag</option>
-    <option>Samstag</option>
-    <option>Sonntag</option>
-</select>
+    <button onclick="showScreen('home')">Zurück</button>
+</div>
 
-<button id="checkBtn">Überprüfen</button>
+<!-- ================= DATUM ================= -->
+<div id="trainer_date" class="screen">
+    <h1>Datum Trainer</h1>
 
-<div id="result"></div>
-<div id="timer"></div>
+    <input type="number" id="years" value="50">
 
-<!-- =========================
-     SERVICE WORKER REGISTRIERUNG
-========================= -->
+    <button onclick="generateDate()">Datum generieren</button>
+
+    <div id="dateDisplay" class="big"></div>
+
+    <select id="weekday">
+        <option>Montag</option>
+        <option>Dienstag</option>
+        <option>Mittwoch</option>
+        <option>Donnerstag</option>
+        <option>Freitag</option>
+        <option>Samstag</option>
+        <option>Sonntag</option>
+    </select>
+
+    <button onclick="checkDay()">Überprüfen</button>
+
+    <div id="result"></div>
+    <div id="timer"></div>
+
+    <button onclick="showScreen('practice')">Zurück</button>
+</div>
+
+<!-- ================= MONAT ================= -->
+<div id="trainer_month" class="screen">
+    <h1>Monats Trainer</h1>
+
+    <div id="monthDisplay" class="big"></div>
+
+    <input type="number" id="monthInput" placeholder="Zahl eingeben">
+
+    <button onclick="generateMonth()">Monat generieren</button>
+    <button onclick="checkMonth()">Überprüfen</button>
+
+    <div id="monthResult"></div>
+    <div id="monthTimer"></div>
+
+    <button onclick="showScreen('practice')">Zurück</button>
+</div>
+
+<!-- ================= DIV 4 ================= -->
+<div id="trainer_div4" class="screen">
+    <h1>Division durch 4 (ohne Rest)</h1>
+
+    <div id="div4Number" class="big"></div>
+
+    <input type="number" id="div4Input" placeholder="Ergebnis">
+
+    <button onclick="generateDiv4()">Zahl generieren</button>
+    <button onclick="checkDiv4()">Überprüfen</button>
+
+    <div id="div4Result"></div>
+
+    <button onclick="showScreen('practice')">Zurück</button>
+</div>
+
+<!-- ================= MOD 7 ================= -->
+<div id="trainer_mod7" class="screen">
+    <h1>Rest durch 7</h1>
+
+    <div id="mod7Number" class="big"></div>
+
+    <input type="number" id="mod7Input" placeholder="Rest">
+
+    <button onclick="generateMod7()">Zahl generieren</button>
+    <button onclick="checkMod7()">Überprüfen</button>
+
+    <div id="mod7Result"></div>
+
+    <button onclick="showScreen('practice')">Zurück</button>
+</div>
+
+<!-- ================= GAME SETUP ================= -->
+<div id="gameSetup" class="screen">
+    <h1>Spielmodus</h1>
+
+    <div class="card">
+
+        <label>⏱ Zeit festlegen (in Sekunden):</label>
+        <input type="number" id="timeLimit" value="60">
+
+        <label>📅 Jahresspanne (+/- in Jahren):</label>
+        <input type="number" id="range" value="50">
+
+        <button onclick="startGame()">Spiel starten</button>
+
+    </div>
+
+    <button onclick="showScreen('home')">Zurück</button>
+</div>
+
+<!-- ================= GAME SCREEN (NEU) ================= -->
+<div id="game" class="screen">
+    <h1>Spiel läuft</h1>
+
+    <div id="gameTask" class="big"></div>
+
+    <select id="gameWeekday">
+        <option value="">Wochentag wählen</option>
+        <option>Montag</option>
+        <option>Dienstag</option>
+        <option>Mittwoch</option>
+        <option>Donnerstag</option>
+        <option>Freitag</option>
+        <option>Samstag</option>
+        <option>Sonntag</option>
+    </select>
+
+    <button onclick="checkGame()">OK</button>
+
+    <div id="gameInfo"></div>
+</div>
+
+<!-- ================= GAME END ================= -->
+<div id="gameEnd" class="screen">
+    <h1>Spiel beendet</h1>
+
+    <div id="endStats" class="card"></div>
+
+    <button onclick="startGame()">Nochmal spielen</button>
+    <button onclick="showScreen('home')">Menü</button>
+</div>
+
+<!-- ================= SERVICE WORKER ================= -->
 <script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log("Service Worker aktiv"))
-        .catch(err => console.log("SW Fehler:", err));
+        .then(() => console.log("SW aktiv"))
+        .catch(err => console.log(err));
 }
 </script>
 
-<!-- =========================
-     APP LOGIK
-========================= -->
+<!-- ================= APP LOGIK ================= -->
 <script>
 
+// NAVIGATION
+function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function openTrainer(type) {
+    showScreen("trainer_" + type);
+}
+
+// ================= TRAINING (UNVERÄNDERT) =================
 let generatedDate = null;
 let startTime = null;
 
-const weekdays = {
-    0: "Sonntag",
-    1: "Montag",
-    2: "Dienstag",
-    3: "Mittwoch",
-    4: "Donnerstag",
-    5: "Freitag",
-    6: "Samstag"
-};
-
 function generateDate() {
-
     const years = parseInt(document.getElementById("years").value);
 
-    if (isNaN(years)) {
-        document.getElementById("result").textContent =
-            "Bitte gültige Zahl eingeben!";
-        return;
-    }
-
     const today = new Date();
+    const start = new Date(today);
+    start.setFullYear(today.getFullYear() - years);
 
-    const startDate = new Date(today);
-    startDate.setFullYear(today.getFullYear() - years);
+    const end = new Date(today);
+    end.setFullYear(today.getFullYear() + years);
 
-    const endDate = new Date(today);
-    endDate.setFullYear(today.getFullYear() + years);
-
-    const randomTime =
-        startDate.getTime() +
-        Math.random() * (endDate.getTime() - startDate.getTime());
-
-    generatedDate = new Date(randomTime);
-
-    const day = String(generatedDate.getDate()).padStart(2, "0");
-    const month = String(generatedDate.getMonth() + 1).padStart(2, "0");
-    const year = generatedDate.getFullYear();
+    generatedDate = new Date(
+        start.getTime() + Math.random() * (end - start)
+    );
 
     document.getElementById("dateDisplay").textContent =
-        `${day}.${month}.${year}`;
-
-    document.getElementById("result").textContent = "";
-    document.getElementById("timer").textContent = "";
+        generatedDate.toLocaleDateString("de-DE");
 
     startTime = performance.now();
-
-    // UX: direkt ins Dropdown springen
-    document.getElementById("weekday").focus();
 }
 
 function checkDay() {
+    const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+    const actual = days[generatedDate.getDay()];
+    const selected = document.getElementById("weekday").value;
 
-    if (!generatedDate) {
-        document.getElementById("result").textContent =
-            "Bitte zuerst ein Datum generieren!";
-        return;
-    }
+    const time = ((performance.now()-startTime)/1000).toFixed(2);
 
-    const selected =
-        document.getElementById("weekday").value;
+    document.getElementById("timer").textContent = time + "s";
 
-    const actual =
-        weekdays[generatedDate.getDay()];
-
-    const result =
-        document.getElementById("result");
-
-    const elapsed =
-        ((performance.now() - startTime) / 1000).toFixed(2);
-
-    document.getElementById("timer").textContent =
-        `Zeit: ${elapsed} Sekunden`;
-
-    if (selected === actual) {
-        result.textContent = "Richtig! 🎉";
-        result.className = "correct";
-    } else {
-        result.textContent = `Falsch! Es war ${actual}`;
-        result.className = "wrong";
-    }
+    document.getElementById("result").textContent =
+        selected === actual ? "Richtig! 🎉" : "Falsch! " + actual;
 }
 
-document.getElementById("generateBtn")
-    .addEventListener("click", generateDate);
+// ================= MONAT (UNVERÄNDERT) =================
+const monthMap = [
+    {name:"Januar", value:6},
+    {name:"Februar", value:2},
+    {name:"März", value:2},
+    {name:"April", value:5},
+    {name:"Mai", value:0},
+    {name:"Juni", value:3},
+    {name:"Juli", value:5},
+    {name:"August", value:1},
+    {name:"September", value:4},
+    {name:"Oktober", value:6},
+    {name:"November", value:2},
+    {name:"Dezember", value:4}
+];
 
-document.getElementById("checkBtn")
-    .addEventListener("click", checkDay);
+let currentMonth = null;
+let monthStart = 0;
 
-document.getElementById("years")
-    .addEventListener("keydown", function(e) {
-        if (e.key === "Enter") {
-            generateDate();
+function generateMonth() {
+    currentMonth = monthMap[Math.floor(Math.random()*12)];
+
+    document.getElementById("monthDisplay").textContent =
+        currentMonth.name;
+		
+	document.getElementById("monthResult").textContent = "";
+
+    monthStart = performance.now();
+	
+	document.getElementById("monthInput").value = "";
+}
+
+function checkMonth() {
+    const val = parseInt(document.getElementById("monthInput").value);
+
+    const time = ((performance.now()-monthStart)/1000).toFixed(2);
+
+    document.getElementById("monthTimer").textContent = time + "s";
+
+    document.getElementById("monthResult").textContent =
+        val === currentMonth.value ? "Richtig! 🎉" : "Falsch! " + currentMonth.value;
+}
+
+// ================= DIV 4 (UNVERÄNDERT) =================
+let div4Number = 0;
+
+function generateDiv4() {
+    div4Number = Math.floor(Math.random()*99)+1;
+    document.getElementById("div4Number").textContent = div4Number;
+	
+	// 🆕 CLEAR INPUT
+	document.getElementById("div4Input").value = "";
+}
+
+function checkDiv4() {
+    const ans = parseInt(document.getElementById("div4Input").value);
+    const correct = Math.floor(div4Number/4);
+
+    document.getElementById("div4Result").textContent =
+        ans === correct ? "Richtig! 🎉" : "Falsch! " + correct;
+}
+
+// ================= MOD 7 (UNVERÄNDERT) =================
+let mod7Number = 0;
+
+function generateMod7() {
+
+    const x = Math.floor(Math.random() * 100);
+    mod7Number = x + Math.floor(x / 4);
+
+    document.getElementById("mod7Number").textContent = mod7Number;
+	
+	// 🆕 CLEAR INPUT
+    document.getElementById("mod7Input").value = "";
+}
+
+function checkMod7() {
+    const ans = parseInt(document.getElementById("mod7Input").value);
+    const correct = mod7Number % 7;
+
+    document.getElementById("mod7Result").textContent =
+        ans === correct ? "Richtig! 🎉" : "Falsch! " + correct;
+}
+
+// ================= GAME LOGIK =================
+
+let gameTime = 60;
+let gamePoints = 0;
+let gameEndTime = 0;
+let currentDate = null;
+let gameCorrect = 0;
+let gameWrong = 0;
+let lastWrong = null;
+let gameStartTime = 0;
+let gameLog = [];
+
+function startGame() {
+
+    const range = parseInt(document.getElementById("range").value);
+    gameTime = parseInt(document.getElementById("timeLimit").value);
+
+    gamePoints = 0;
+    gameCorrect = 0;
+    gameWrong = 0;
+
+    gameLog = []; // 🆕 LOG RESET
+
+    showScreen("game");
+
+    gameStartTime = Date.now();
+    gameEndTime = gameStartTime + gameTime * 1000;
+
+    nextGameTask(range);
+    startGameTimer();
+}
+
+function nextGameTask(range) {
+
+    const today = new Date();
+
+    const start = new Date(today);
+    start.setFullYear(today.getFullYear() - range);
+
+    const end = new Date(today);
+    end.setFullYear(today.getFullYear() + range);
+
+    currentDate = new Date(
+        start.getTime() + Math.random() * (end - start)
+    );
+
+    document.getElementById("gameTask").textContent =
+        currentDate.toLocaleDateString("de-DE");
+
+    // Dropdown reset
+    document.getElementById("gameWeekday").value = "";
+}
+
+function checkGame() {
+
+    const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+
+    const selected = document.getElementById("gameWeekday").value;
+    const actual = days[currentDate.getDay()];
+
+    const isCorrect = selected === actual;
+
+    if (isCorrect) {
+        gameCorrect++;
+    } else {
+        gameWrong++;
+
+        // 🆕 FEHLER INS LOG
+        gameLog.push({
+            date: currentDate.toLocaleDateString("de-DE"),
+            selected: selected,
+            correct: actual
+        });
+    }
+
+    nextGameTask(parseInt(document.getElementById("range").value));
+}
+
+function startGameTimer() {
+
+    const interval = setInterval(() => {
+
+        const remaining = gameEndTime - Date.now();
+
+        document.getElementById("gameInfo").textContent =
+            "Zeit: " + Math.max(0, Math.ceil(remaining / 1000)) +
+            "s | Richtig: " + gameCorrect +
+            " | Falsch: " + gameWrong;
+
+        if (remaining <= 0) {
+            clearInterval(interval);
+            endGame();
         }
-    });
+
+    }, 250);
+}
+
+function endGame() {
+
+    const duration = ((Date.now() - gameStartTime) / 1000).toFixed(1);
+
+    let html = `
+        <p><b>Zeit:</b> ${duration}s</p>
+        <p><b>Richtig:</b> ${gameCorrect}</p>
+        <p><b>Falsch:</b> ${gameWrong}</p>
+    `;
+
+    // 🆕 GAME LOG AUSGABE
+    if (gameLog.length > 0) {
+
+        html += `<hr><h3>Fehler-Log</h3>`;
+
+        gameLog.forEach((entry, index) => {
+            html += `
+                <div style="text-align:left; margin-bottom:8px;">
+                    <b>#${index + 1}</b><br>
+                    Datum: ${entry.date}<br>
+                    Deine Antwort: ${entry.selected}<br>
+                    Richtig: ${entry.correct}
+                </div>
+            `;
+        });
+    } else {
+        html += `<p>Keine Fehler 🎉</p>`;
+    }
+
+    document.getElementById("endStats").innerHTML = html;
+
+    showScreen("gameEnd");
+}
 
 </script>
 
