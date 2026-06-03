@@ -1,65 +1,74 @@
-const CACHE_NAME = "trainer-app-v3"; // 🔥 Version erhöhen WICHTIG
+const CACHE_NAME = "trainer-app-v1";
 
-const urlsToCache = [
-  "./",
-  "./index.html",
-  "./manifest.json"
+// 🔥 Grund-Assets (deine App bleibt stabil)
+const STATIC_ASSETS = [
+    "./",
+    "./index.html",
+    "./manifest.json",
+    "./service-worker.js"
 ];
 
 // =========================
-// 📅 DATUMS-TRAINER (bestehend)
+// INSTALL
 // =========================
+self.addEventListener("install", (event) => {
+    self.skipWaiting();
 
-// =====================
-// INSTALL (Cache initial)
-// =====================
-self.addEventListener("install", event => {
-  self.skipWaiting(); // 🔥 sofort aktiv werden
-
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
-    })
-  );
-});
-
-// =====================
-// ACTIVATE (alte Caches löschen)
-// =====================
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key); // 🔥 alte Versionen löschen
-          }
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(STATIC_ASSETS);
         })
-      );
-    })
-  );
-
-  self.clients.claim(); // sofort Kontrolle übernehmen
+    );
 });
 
-// =====================
-// FETCH (Network first, fallback cache)
-// =====================
-self.addEventListener("fetch", event => {
+// =========================
+// ACTIVATE
+// =========================
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        clients.claim()
+    );
+});
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // neue Version immer cachen
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseClone);
-        });
-        return response;
-      })
-      .catch(() => {
-        // offline fallback
-        return caches.match(event.request);
-      })
-  );
+// =========================
+// FETCH (HIER PASSIERT DIE MAGIE)
+// =========================
+self.addEventListener("fetch", (event) => {
+    const requestUrl = event.request.url;
+
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+
+            return fetch(event.request).then((response) => {
+                // Nur gültige Responses cachen
+                if (
+                    !response ||
+                    response.status !== 200 ||
+                    response.type !== "basic"
+                ) {
+                    return response;
+                }
+
+                // 🔥 WICHTIG: Flags automatisch mitspeichern
+                const shouldCache =
+                    requestUrl.includes("/flags/") ||   // 👈 deine Flaggen
+                    requestUrl.endsWith(".png") ||      // optional: Bilder allgemein
+                    requestUrl.includes("index.html") ||
+                    requestUrl.includes("manifest.json");
+
+                if (shouldCache) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+
+                return response;
+            }).catch(() => {
+                // Offline-Fallback (optional)
+                return caches.match("./");
+            });
+        })
+    );
 });
