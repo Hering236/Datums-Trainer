@@ -508,7 +508,7 @@ function endGame() {
 
     <div class="card">
         <button onclick="showScreen('flags_practice')">Üben</button>
-        <button onclick="startFlagGame()">Spielen</button>
+        <button onclick="showScreen('flags_game_choice')">Spielen</button>
     </div>
 
     <button onclick="showScreen('start')">Zurück</button>
@@ -530,13 +530,39 @@ function endGame() {
         <hr>
 
         <label>
-            <input type="checkbox" id="allFlags" onchange="toggleAllFlags()">
+            <input type="checkbox" id="allFlags" onchange="toggleAllFlags(this)">
             Alle Länder
         </label>
 
     </div>
 
     <button onclick="startFlagPractice()">Starten</button>
+    <button onclick="showScreen('flags_menu')">Zurück</button>
+</div>
+
+<!-- ================= FLAGGEN SPIEL ================= -->
+<div id="flags_game_choice" class="screen">
+    <h1>Flaggen Spiel</h1>
+
+    <div class="card">
+
+        <label><input type="checkbox" class="region" value="europe"> Europa</label><br>
+        <label><input type="checkbox" class="region" value="asia"> Asien</label><br>
+        <label><input type="checkbox" class="region" value="africa"> Afrika</label><br>
+        <label><input type="checkbox" class="region" value="oceania"> Australien/Ozeanien</label><br>
+        <label><input type="checkbox" class="region" value="southamerica"> Südamerika</label><br>
+        <label><input type="checkbox" class="region" value="northamerica"> Nordamerika</label><br>
+
+        <hr>
+
+        <label>
+            <input type="checkbox" id="allFlags" onchange="toggleAllFlags(this)">
+            Alle Länder
+        </label>
+
+    </div>
+
+    <button onclick="startFlagGame()">Starten</button>
     <button onclick="showScreen('flags_menu')">Zurück</button>
 </div>
 
@@ -795,10 +821,12 @@ let usedFlags = [];
 
 // ================= REGION TOGGLE =================
 
-function toggleAllFlags() {
-    const all = document.getElementById("allFlags").checked;
+function toggleAllFlags(checkbox) {
+    const all = checkbox.checked;
 
-    document.querySelectorAll(".region").forEach(cb => {
+    const container = checkbox.closest(".screen");
+
+    container.querySelectorAll(".region").forEach(cb => {
         cb.checked = all;
         cb.disabled = all;
     });
@@ -819,25 +847,6 @@ function startFlagPractice() {
         alert("Bitte mindestens eine Region auswählen");
         return;
     }
-
-    flagPool = flagData.filter(f => selected.includes(f.region));
-
-    usedFlags = [];
-    flagIndex = 0;
-
-    loadCountries();
-    showScreen("flags_game");
-    nextFlag();
-
-    applyFlagModeUI();
-}
-
-// ================= START GAME =================
-
-function startFlagGame() {
-    flagMode = "game";
-
-    const selected = ["europe","asia","africa","oceania","southamerica","northamerica"];
 
     flagPool = flagData.filter(f => selected.includes(f.region));
 
@@ -977,14 +986,24 @@ let flagStartTime = 0;
 function startFlagGame() {
     flagMode = "game";
 
-    const selected = ["europe","asia","africa","oceania","southamerica","northamerica"];
+    const selected = [];
 
+    document.querySelectorAll(".region:checked").forEach(cb => {
+        selected.push(cb.value);
+    });
+
+    if (selected.length === 0) {
+        alert("Bitte mindestens eine Region auswählen");
+        return;
+    }
+
+    // gleiche Logik wie Übung: gefilterter Pool
     flagPool = flagData.filter(f => selected.includes(f.region));
 
     usedFlags = [];
     flagIndex = 0;
 
-    flagStartTime = Date.now();
+    flagStartTime = Date.now(); // bleibt wichtig für Endscreen-Timer
 
     loadCountries();
     showScreen("flags_game");
