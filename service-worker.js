@@ -1,4 +1,4 @@
-const CACHE_NAME = "trainer-app-v2"; // 🔥 Version erhöhen WICHTIG
+const CACHE_NAME = "trainer-app-v3"; // 🔥 Version erhöhen WICHTIG
 
 const urlsToCache = [
   "./",
