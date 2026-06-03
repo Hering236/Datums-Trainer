@@ -61,12 +61,27 @@ h1 {
 
 <body>
 
-<!-- ================= HOME ================= -->
-<div id="home" class="screen active">
-    <h1>Trainer App</h1>
 
-	<button onclick="showScreen('gameSetup')">Spielen</button>
-    <button onclick="showScreen('practice')">Üben</button>
+<!-- ================= NEU: START / MODUL WAHL ================= -->
+<div id="start" class="screen active">
+    <h1>Was möchtest du trainieren?</h1>
+
+    <div class="card">
+        <button onclick="showScreen('date')">📅 Datums-Trainer</button>
+		<button onclick="showScreen('flags_menu')">🏳️ Flaggen Trainer</button>
+    </div>
+</div>
+
+<!-- ================= DATE ================= -->
+<div id="date" class="screen">
+    <h1>Datums-Trainer</h1>
+
+	<div class="card">
+		<button onclick="showScreen('gameSetup')">Spielen</button>
+		<button onclick="showScreen('practice')">Üben</button>
+	</div>
+	
+	<button onclick="showScreen('start')">Zurück</button>
 </div>
 
 <!-- ================= ÜBEN ================= -->
@@ -80,7 +95,7 @@ h1 {
         <button onclick="openTrainer('mod7')">➗ Rest durch 7</button>
     </div>
 
-    <button onclick="showScreen('home')">Zurück</button>
+    <button onclick="showScreen('date')">Zurück</button>
 </div>
 
 <!-- ================= DATUM ================= -->
@@ -176,7 +191,7 @@ h1 {
 
     </div>
 
-    <button onclick="showScreen('home')">Zurück</button>
+    <button onclick="showScreen('date')">Zurück</button>
 </div>
 
 <!-- ================= GAME SCREEN (NEU) ================= -->
@@ -208,7 +223,7 @@ h1 {
     <div id="endStats" class="card"></div>
 
     <button onclick="startGame()">Nochmal spielen</button>
-    <button onclick="showScreen('home')">Menü</button>
+    <button onclick="showScreen('date')">Menü</button>
 </div>
 
 <!-- ================= SERVICE WORKER ================= -->
@@ -485,6 +500,530 @@ function endGame() {
     showScreen("gameEnd");
 }
 
+</script>
+
+<!-- ================= FLAGGEN MENU ================= -->
+<div id="flags_menu" class="screen">
+    <h1>Flaggen Trainer</h1>
+
+    <div class="card">
+        <button onclick="showScreen('flags_practice')">Üben</button>
+        <button onclick="startFlagGame()">Spielen</button>
+    </div>
+
+    <button onclick="showScreen('start')">Zurück</button>
+</div>
+
+<!-- ================= FLAGGEN ÜBEN ================= -->
+<div id="flags_practice" class="screen">
+    <h1>Flaggen Üben</h1>
+
+    <div class="card">
+
+        <label><input type="checkbox" class="region" value="europe"> Europa</label><br>
+        <label><input type="checkbox" class="region" value="asia"> Asien</label><br>
+        <label><input type="checkbox" class="region" value="africa"> Afrika</label><br>
+        <label><input type="checkbox" class="region" value="oceania"> Australien/Ozeanien</label><br>
+        <label><input type="checkbox" class="region" value="southamerica"> Südamerika</label><br>
+        <label><input type="checkbox" class="region" value="northamerica"> Nordamerika</label><br>
+
+        <hr>
+
+        <label>
+            <input type="checkbox" id="allFlags" onchange="toggleAllFlags()">
+            Alle Länder
+        </label>
+
+    </div>
+
+    <button onclick="startFlagPractice()">Starten</button>
+    <button onclick="showScreen('flags_menu')">Zurück</button>
+</div>
+
+<!-- ================= FLAGGEN GAME ================= -->
+<div id="flags_game" class="screen">
+    <h1>Flaggen Spiel</h1>
+
+    <div id="flagCounter" style="position:absolute; top:10px; right:10px;"></div>
+
+    <div id="flagDisplay"></div>
+
+    <input list="countryList" id="flagInput" placeholder="Land eingeben">
+
+    <datalist id="countryList"></datalist>
+
+    <button onclick="checkFlag()">OK</button>
+    <button onclick="nextFlag()">Weiter</button>
+    <button id="showAnswerBtn" onclick="showAnswer()">Lösung zeigen</button>
+
+    <div id="flagResult"></div>
+
+    <button onclick="showScreen('flags_menu')">Beenden</button>
+</div>
+
+<script>
+
+// ================= FLAGGEN MODUS =================
+let flagMode = "practice"; // "practice" | "game"
+
+// ================= FLAGGEN DATEN =================
+
+const flagData = [
+    { "name": "Afghanistan", "region": "asia", "code": "af" },
+    { "name": "Albanien", "region": "europe", "code": "al" },
+    { "name": "Algerien", "region": "africa", "code": "dz" },
+    { "name": "Andorra", "region": "europe", "code": "ad" },
+    { "name": "Angola", "region": "africa", "code": "ao" },
+    { "name": "Antigua und Barbuda", "region": "northamerica", "code": "ag" },
+    { "name": "Argentinien", "region": "southamerica", "code": "ar" },
+    { "name": "Armenien", "region": "asia", "code": "am" },
+    { "name": "Australien", "region": "oceania", "code": "au" },
+    { "name": "Österreich", "region": "europe", "code": "at" },
+    { "name": "Aserbaidschan", "region": "asia", "code": "az" },
+
+    { "name": "Bahamas", "region": "northamerica", "code": "bs" },
+    { "name": "Bahrain", "region": "asia", "code": "bh" },
+    { "name": "Bangladesch", "region": "asia", "code": "bd" },
+    { "name": "Barbados", "region": "northamerica", "code": "bb" },
+    { "name": "Belarus", "region": "europe", "code": "by" },
+    { "name": "Belgien", "region": "europe", "code": "be" },
+    { "name": "Belize", "region": "northamerica", "code": "bz" },
+    { "name": "Benin", "region": "africa", "code": "bj" },
+    { "name": "Bhutan", "region": "asia", "code": "bt" },
+    { "name": "Bolivien", "region": "southamerica", "code": "bo" },
+    { "name": "Bosnien und Herzegowina", "region": "europe", "code": "ba" },
+    { "name": "Botswana", "region": "africa", "code": "bw" },
+    { "name": "Brasilien", "region": "southamerica", "code": "br" },
+    { "name": "Brunei", "region": "asia", "code": "bn" },
+    { "name": "Bulgarien", "region": "europe", "code": "bg" },
+    { "name": "Burkina Faso", "region": "africa", "code": "bf" },
+    { "name": "Burundi", "region": "africa", "code": "bi" },
+
+    { "name": "Kambodscha", "region": "asia", "code": "kh" },
+    { "name": "Kamerun", "region": "africa", "code": "cm" },
+    { "name": "Kanada", "region": "northamerica", "code": "ca" },
+    { "name": "Kap Verde", "region": "africa", "code": "cv" },
+    { "name": "Zentralafrikanische Republik", "region": "africa", "code": "cf" },
+    { "name": "Tschad", "region": "africa", "code": "td" },
+    { "name": "Chile", "region": "southamerica", "code": "cl" },
+    { "name": "China", "region": "asia", "code": "cn" },
+    { "name": "Kolumbien", "region": "southamerica", "code": "co" },
+    { "name": "Komoren", "region": "africa", "code": "km" },
+    { "name": "Kongo (Republik)", "region": "africa", "code": "cg" },
+    { "name": "Kongo (Demokratische Republik)", "region": "africa", "code": "cd" },
+    { "name": "Costa Rica", "region": "northamerica", "code": "cr" },
+    { "name": "Kroatien", "region": "europe", "code": "hr" },
+    { "name": "Kuba", "region": "northamerica", "code": "cu" },
+    { "name": "Zypern", "region": "europe", "code": "cy" },
+    { "name": "Tschechien", "region": "europe", "code": "cz" },
+
+    { "name": "Dänemark", "region": "europe", "code": "dk" },
+    { "name": "Djibouti", "region": "africa", "code": "dj" },
+    { "name": "Dominica", "region": "northamerica", "code": "dm" },
+    { "name": "Dominikanische Republik", "region": "northamerica", "code": "do" },
+
+    { "name": "Ecuador", "region": "southamerica", "code": "ec" },
+    { "name": "Ägypten", "region": "africa", "code": "eg" },
+    { "name": "El Salvador", "region": "northamerica", "code": "sv" },
+    { "name": "Äquatorialguinea", "region": "africa", "code": "gq" },
+    { "name": "Eritrea", "region": "africa", "code": "er" },
+    { "name": "Estland", "region": "europe", "code": "ee" },
+    { "name": "Eswatini", "region": "africa", "code": "sz" },
+    { "name": "Äthiopien", "region": "africa", "code": "et" },
+
+    { "name": "Fidschi", "region": "oceania", "code": "fj" },
+    { "name": "Finnland", "region": "europe", "code": "fi" },
+    { "name": "Frankreich", "region": "europe", "code": "fr" },
+
+    { "name": "Gabun", "region": "africa", "code": "ga" },
+    { "name": "Gambia", "region": "africa", "code": "gm" },
+    { "name": "Georgien", "region": "asia", "code": "ge" },
+    { "name": "Deutschland", "region": "europe", "code": "de" },
+    { "name": "Ghana", "region": "africa", "code": "gh" },
+    { "name": "Griechenland", "region": "europe", "code": "gr" },
+    { "name": "Grenada", "region": "northamerica", "code": "gd" },
+    { "name": "Guatemala", "region": "northamerica", "code": "gt" },
+    { "name": "Guinea", "region": "africa", "code": "gn" },
+    { "name": "Guinea-Bissau", "region": "africa", "code": "gw" },
+    { "name": "Guyana", "region": "southamerica", "code": "gy" },
+
+    { "name": "Haiti", "region": "northamerica", "code": "ht" },
+    { "name": "Honduras", "region": "northamerica", "code": "hn" },
+    { "name": "Ungarn", "region": "europe", "code": "hu" },
+    { "name": "Island", "region": "europe", "code": "is" },
+    { "name": "Indien", "region": "asia", "code": "in" },
+    { "name": "Indonesien", "region": "asia", "code": "id" },
+    { "name": "Iran", "region": "asia", "code": "ir" },
+    { "name": "Irak", "region": "asia", "code": "iq" },
+    { "name": "Irland", "region": "europe", "code": "ie" },
+    { "name": "Israel", "region": "asia", "code": "il" },
+    { "name": "Italien", "region": "europe", "code": "it" },
+
+    { "name": "Jamaika", "region": "northamerica", "code": "jm" },
+    { "name": "Japan", "region": "asia", "code": "jp" },
+    { "name": "Jordanien", "region": "asia", "code": "jo" },
+
+    { "name": "Kasachstan", "region": "asia", "code": "kz" },
+    { "name": "Kenia", "region": "africa", "code": "ke" },
+    { "name": "Kiribati", "region": "oceania", "code": "ki" },
+    { "name": "Nordkorea", "region": "asia", "code": "kp" },
+    { "name": "Südkorea", "region": "asia", "code": "kr" },
+    { "name": "Kosovo", "region": "europe", "code": "xk" },
+    { "name": "Kuwait", "region": "asia", "code": "kw" },
+    { "name": "Kirgisistan", "region": "asia", "code": "kg" },
+
+    { "name": "Laos", "region": "asia", "code": "la" },
+    { "name": "Lettland", "region": "europe", "code": "lv" },
+    { "name": "Libanon", "region": "asia", "code": "lb" },
+    { "name": "Lesotho", "region": "africa", "code": "ls" },
+    { "name": "Liberia", "region": "africa", "code": "lr" },
+    { "name": "Libyen", "region": "africa", "code": "ly" },
+    { "name": "Liechtenstein", "region": "europe", "code": "li" },
+    { "name": "Litauen", "region": "europe", "code": "lt" },
+    { "name": "Luxemburg", "region": "europe", "code": "lu" },
+
+    { "name": "Madagaskar", "region": "africa", "code": "mg" },
+    { "name": "Malawi", "region": "africa", "code": "mw" },
+    { "name": "Malaysia", "region": "asia", "code": "my" },
+    { "name": "Malediven", "region": "asia", "code": "mv" },
+    { "name": "Mali", "region": "africa", "code": "ml" },
+    { "name": "Malta", "region": "europe", "code": "mt" },
+    { "name": "Marshallinseln", "region": "oceania", "code": "mh" },
+    { "name": "Mauretanien", "region": "africa", "code": "mr" },
+    { "name": "Mauritius", "region": "africa", "code": "mu" },
+    { "name": "Mexiko", "region": "northamerica", "code": "mx" },
+    { "name": "Mikronesien", "region": "oceania", "code": "fm" },
+    { "name": "Moldawien", "region": "europe", "code": "md" },
+    { "name": "Monaco", "region": "europe", "code": "mc" },
+    { "name": "Mongolei", "region": "asia", "code": "mn" },
+    { "name": "Montenegro", "region": "europe", "code": "me" },
+    { "name": "Marokko", "region": "africa", "code": "ma" },
+    { "name": "Mosambik", "region": "africa", "code": "mz" },
+    { "name": "Myanmar", "region": "asia", "code": "mm" },
+
+    { "name": "Namibia", "region": "africa", "code": "na" },
+    { "name": "Nauru", "region": "oceania", "code": "nr" },
+    { "name": "Nepal", "region": "asia", "code": "np" },
+    { "name": "Niederlande", "region": "europe", "code": "nl" },
+    { "name": "Neuseeland", "region": "oceania", "code": "nz" },
+    { "name": "Nicaragua", "region": "northamerica", "code": "ni" },
+    { "name": "Niger", "region": "africa", "code": "ne" },
+    { "name": "Nigeria", "region": "africa", "code": "ng" },
+    { "name": "Nordmazedonien", "region": "europe", "code": "mk" },
+    { "name": "Norwegen", "region": "europe", "code": "no" },
+
+    { "name": "Oman", "region": "asia", "code": "om" },
+
+    { "name": "Pakistan", "region": "asia", "code": "pk" },
+    { "name": "Palau", "region": "oceania", "code": "pw" },
+    { "name": "Panama", "region": "northamerica", "code": "pa" },
+    { "name": "Papua-Neuguinea", "region": "oceania", "code": "pg" },
+    { "name": "Paraguay", "region": "southamerica", "code": "py" },
+    { "name": "Peru", "region": "southamerica", "code": "pe" },
+    { "name": "Philippinen", "region": "asia", "code": "ph" },
+    { "name": "Polen", "region": "europe", "code": "pl" },
+    { "name": "Portugal", "region": "europe", "code": "pt" },
+
+    { "name": "Katar", "region": "asia", "code": "qa" },
+
+    { "name": "Rumänien", "region": "europe", "code": "ro" },
+    { "name": "Russland", "region": "asia", "code": "ru" },
+    { "name": "Ruanda", "region": "africa", "code": "rw" },
+
+    { "name": "St. Kitts und Nevis", "region": "northamerica", "code": "kn" },
+    { "name": "St. Lucia", "region": "northamerica", "code": "lc" },
+    { "name": "St. Vincent und die Grenadinen", "region": "northamerica", "code": "vc" },
+
+    { "name": "Samoa", "region": "oceania", "code": "ws" },
+    { "name": "San Marino", "region": "europe", "code": "sm" },
+    { "name": "São Tomé und Príncipe", "region": "africa", "code": "st" },
+    { "name": "Saudi-Arabien", "region": "asia", "code": "sa" },
+    { "name": "Senegal", "region": "africa", "code": "sn" },
+    { "name": "Serbien", "region": "europe", "code": "rs" },
+    { "name": "Seychellen", "region": "africa", "code": "sc" },
+    { "name": "Sierra Leone", "region": "africa", "code": "sl" },
+    { "name": "Singapur", "region": "asia", "code": "sg" },
+    { "name": "Slowakei", "region": "europe", "code": "sk" },
+    { "name": "Slowenien", "region": "europe", "code": "si" },
+    { "name": "Salomonen", "region": "oceania", "code": "sb" },
+    { "name": "Somalia", "region": "africa", "code": "so" },
+    { "name": "Südafrika", "region": "africa", "code": "za" },
+    { "name": "Spanien", "region": "europe", "code": "es" },
+    { "name": "Sri Lanka", "region": "asia", "code": "lk" },
+    { "name": "Sudan", "region": "africa", "code": "sd" },
+    { "name": "Südsudan", "region": "africa", "code": "ss" },
+    { "name": "Suriname", "region": "southamerica", "code": "sr" },
+    { "name": "Schweden", "region": "europe", "code": "se" },
+    { "name": "Schweiz", "region": "europe", "code": "ch" },
+    { "name": "Syrien", "region": "asia", "code": "sy" },
+
+    { "name": "Taiwan", "region": "asia", "code": "tw" },
+    { "name": "Tadschikistan", "region": "asia", "code": "tj" },
+    { "name": "Tansania", "region": "africa", "code": "tz" },
+    { "name": "Thailand", "region": "asia", "code": "th" },
+    { "name": "Timor-Leste", "region": "asia", "code": "tl" },
+    { "name": "Togo", "region": "africa", "code": "tg" },
+    { "name": "Tonga", "region": "oceania", "code": "to" },
+    { "name": "Trinidad und Tobago", "region": "northamerica", "code": "tt" },
+    { "name": "Tunesien", "region": "africa", "code": "tn" },
+    { "name": "Türkei", "region": "asia", "code": "tr" },
+    { "name": "Turkmenistan", "region": "asia", "code": "tm" },
+    { "name": "Tuvalu", "region": "oceania", "code": "tv" },
+
+    { "name": "Uganda", "region": "africa", "code": "ug" },
+    { "name": "Ukraine", "region": "europe", "code": "ua" },
+    { "name": "Vereinigte Arabische Emirate", "region": "asia", "code": "ae" },
+    { "name": "Vereinigtes Königreich", "region": "europe", "code": "gb" },
+    { "name": "USA", "region": "northamerica", "code": "us" },
+    { "name": "Uruguay", "region": "southamerica", "code": "uy" },
+    { "name": "Usbekistan", "region": "asia", "code": "uz" },
+
+    { "name": "Vanuatu", "region": "oceania", "code": "vu" },
+    { "name": "Vatikanstadt", "region": "europe", "code": "va" },
+    { "name": "Venezuela", "region": "southamerica", "code": "ve" },
+    { "name": "Vietnam", "region": "asia", "code": "vn" },
+
+    { "name": "Jemen", "region": "asia", "code": "ye" },
+    { "name": "Sambia", "region": "africa", "code": "zm" },
+    { "name": "Simbabwe", "region": "africa", "code": "zw" }
+];
+
+let flagPool = [];
+let currentFlag = null;
+let flagIndex = 0;
+let usedFlags = [];
+
+// ================= REGION TOGGLE =================
+
+function toggleAllFlags() {
+    const all = document.getElementById("allFlags").checked;
+
+    document.querySelectorAll(".region").forEach(cb => {
+        cb.checked = all;
+        cb.disabled = all;
+    });
+}
+
+// ================= START PRACTICE =================
+
+function startFlagPractice() {
+    flagMode = "practice";
+
+    const selected = [];
+
+    document.querySelectorAll(".region:checked").forEach(cb => {
+        selected.push(cb.value);
+    });
+
+    if (selected.length === 0) {
+        alert("Bitte mindestens eine Region auswählen");
+        return;
+    }
+
+    flagPool = flagData.filter(f => selected.includes(f.region));
+
+    usedFlags = [];
+    flagIndex = 0;
+
+    loadCountries();
+    showScreen("flags_game");
+    nextFlag();
+
+    applyFlagModeUI();
+}
+
+// ================= START GAME =================
+
+function startFlagGame() {
+    flagMode = "game";
+
+    const selected = ["europe","asia","africa","oceania","southamerica","northamerica"];
+
+    flagPool = flagData.filter(f => selected.includes(f.region));
+
+    usedFlags = [];
+    flagIndex = 0;
+
+    loadCountries();
+    showScreen("flags_game");
+    nextFlag();
+
+    applyFlagModeUI();
+}
+
+// ================= UI MODE SWITCH =================
+
+function applyFlagModeUI() {
+    const btn = document.getElementById("showAnswerBtn");
+    const datalist = document.getElementById("countryList");
+
+    if (flagMode === "game") {
+        btn.style.display = "none"; // ❌ kein Lösung Button im Spiel
+    } else {
+        btn.style.display = "block";
+    }
+
+    // Dropdown Verhalten steuern
+    loadCountries();
+}
+
+// ================= DATENLISTE =================
+
+function loadCountries() {
+    const input = document.getElementById("flagInput");
+    const list = document.getElementById("countryList");
+
+    const query = input.value.trim().toLowerCase();
+
+    list.innerHTML = "";
+
+    let source;
+
+    if (flagMode === "game") {
+        // ❌ SPIEL: nur anzeigen wenn Eingabe vorhanden
+        if (query.length === 0) return;
+        source = flagPool.filter(f =>
+            f.name.toLowerCase().startsWith(query)
+        );
+    } else {
+        // ✔ ÜBUNG: normal
+        source = query.length === 0
+            ? flagPool
+            : flagPool.filter(f =>
+                f.name.toLowerCase().startsWith(query)
+            );
+    }
+
+    source.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.name;
+        list.appendChild(opt);
+    });
+}
+
+// ================= NEXT FLAG =================
+
+function nextFlag() {
+
+    document.getElementById("flagResult").textContent = "";
+
+    const available = flagPool.filter(f =>
+        !usedFlags.includes(f.code)
+    );
+
+    if (available.length === 0) {
+        endFlagGame();
+        return;
+    }
+
+    currentFlag = available[Math.floor(Math.random() * available.length)];
+    usedFlags.push(currentFlag.code);
+
+    document.getElementById("flagDisplay").innerHTML = `
+      <div style="
+          display:inline-block;
+          padding:12px;
+          background:#f5f5f5;
+          border:2px solid #ddd;
+          border-radius:12px;
+      ">
+          <img src="flags/${currentFlag.code}.png"
+               style="width:180px;">
+      </div>
+    `;
+
+    document.getElementById("flagInput").value = "";
+
+    updateFlagCounter();
+    loadCountries();
+}
+
+// ================= CHECK =================
+
+function checkFlag() {
+    const input = document.getElementById("flagInput").value.trim();
+    if (!currentFlag) return;
+
+    if (input.toLowerCase() === currentFlag.name.toLowerCase()) {
+        document.getElementById("flagResult").textContent = "richtig";
+        flagIndex++;
+    } else {
+        document.getElementById("flagResult").textContent =
+            "falsch, richtig war: " + currentFlag.name;
+    }
+}
+
+// ================= SHOW ANSWER =================
+
+function showAnswer() {
+    if (flagMode === "game") return;
+    if (!currentFlag) return;
+
+    document.getElementById("flagResult").textContent =
+        "Lösung: " + currentFlag.name;
+}
+
+// ================= COUNTER =================
+
+function updateFlagCounter() {
+    document.getElementById("flagCounter").textContent =
+        usedFlags.length + " / " + flagPool.length;
+}
+
+// ================= END GAME =================
+
+let flagStartTime = 0;
+
+function startFlagGame() {
+    flagMode = "game";
+
+    const selected = ["europe","asia","africa","oceania","southamerica","northamerica"];
+
+    flagPool = flagData.filter(f => selected.includes(f.region));
+
+    usedFlags = [];
+    flagIndex = 0;
+
+    flagStartTime = Date.now();
+
+    loadCountries();
+    showScreen("flags_game");
+    nextFlag();
+
+    applyFlagModeUI();
+}
+
+function endFlagGame() {
+
+    const duration = ((Date.now() - flagStartTime) / 1000).toFixed(1);
+
+    let html = `
+        <p><b>Zeit:</b> ${duration}s</p>
+        <p><b>Richtig beantwortet:</b> ${flagIndex}</p>
+        <p><b>Gesamt:</b> ${flagPool.length}</p>
+    `;
+
+    document.getElementById("endStats").innerHTML = html;
+
+    showScreen("gameEnd"); // nutzt deinen bestehenden Endscreen
+}
+
+// ================= INPUT LISTENER =================
+
+document.getElementById("flagInput")
+    .addEventListener("input", (e) => {
+        // Wenn ein kompletter Ländername gewählt wurde → KEIN reload
+        const value = e.target.value.trim().toLowerCase();
+
+        const exactMatch = flagPool.some(f =>
+            f.name.toLowerCase() === value
+        );
+
+        if (!exactMatch) {
+            loadCountries();
+        }
+    });
+	
 </script>
 
 </body>

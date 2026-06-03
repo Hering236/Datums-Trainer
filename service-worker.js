@@ -6,6 +6,10 @@ const urlsToCache = [
   "./manifest.json"
 ];
 
+// =========================
+// 📅 DATUMS-TRAINER (bestehend)
+// =========================
+
 // =====================
 // INSTALL (Cache initial)
 // =====================
