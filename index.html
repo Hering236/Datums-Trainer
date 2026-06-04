@@ -63,29 +63,29 @@ h1 {
 
 
 <!-- ================= NEU: START / MODUL WAHL ================= -->
-<div id="start" class="screen active">
+<div id="start_screen" class="screen active">
     <h1>Was möchtest du trainieren?</h1>
 
     <div class="card">
-        <button onclick="showScreen('date')">📅 Datums-Trainer</button>
+        <button onclick="showScreen('date_menu')">📅 Datums-Trainer</button>
 		<button onclick="showScreen('flags_menu')">🏳️ Flaggen Trainer</button>
     </div>
 </div>
 
 <!-- ================= DATE ================= -->
-<div id="date" class="screen">
+<div id="date_menu" class="screen">
     <h1>Datums-Trainer</h1>
 
 	<div class="card">
-		<button onclick="showScreen('gameSetup')">Spielen</button>
-		<button onclick="showScreen('practice')">Üben</button>
+		<button onclick="showScreen('Date_Game_Settings')">Spielen</button>
+		<button onclick="showScreen('Date_Practice')">Üben</button>
 	</div>
 	
-	<button onclick="showScreen('start')">Zurück</button>
+	<button onclick="showScreen('start_screen')">Zurück</button>
 </div>
 
 <!-- ================= ÜBEN ================= -->
-<div id="practice" class="screen">
+<div id="Date_Practice" class="screen">
     <h1>Üben</h1>
 
     <div class="card">
@@ -95,7 +95,7 @@ h1 {
         <button onclick="openTrainer('mod7')">➗ Rest durch 7</button>
     </div>
 
-    <button onclick="showScreen('date')">Zurück</button>
+    <button onclick="showScreen('date_menu')">Zurück</button>
 </div>
 
 <!-- ================= DATUM ================= -->
@@ -123,7 +123,7 @@ h1 {
     <div id="result"></div>
     <div id="timer"></div>
 
-    <button onclick="showScreen('practice')">Zurück</button>
+    <button onclick="showScreen('Date_Practice')">Zurück</button>
 </div>
 
 <!-- ================= MONAT ================= -->
@@ -140,7 +140,7 @@ h1 {
     <div id="monthResult"></div>
     <div id="monthTimer"></div>
 
-    <button onclick="showScreen('practice')">Zurück</button>
+    <button onclick="showScreen('Date_Practice')">Zurück</button>
 </div>
 
 <!-- ================= DIV 4 ================= -->
@@ -156,7 +156,7 @@ h1 {
 
     <div id="div4Result"></div>
 
-    <button onclick="showScreen('practice')">Zurück</button>
+    <button onclick="showScreen('Date_Practice')">Zurück</button>
 </div>
 
 <!-- ================= MOD 7 ================= -->
@@ -172,11 +172,11 @@ h1 {
 
     <div id="mod7Result"></div>
 
-    <button onclick="showScreen('practice')">Zurück</button>
+    <button onclick="showScreen('Date_Practice')">Zurück</button>
 </div>
 
 <!-- ================= GAME SETUP ================= -->
-<div id="gameSetup" class="screen">
+<div id="Date_Game_Settings" class="screen">
     <h1>Spielmodus</h1>
 
     <div class="card">
@@ -187,15 +187,15 @@ h1 {
         <label>📅 Jahresspanne (+/- in Jahren):</label>
         <input type="number" id="range" value="50">
 
-        <button onclick="startGame()">Spiel starten</button>
+        <button onclick="startDate_Game()">Spiel starten</button>
 
     </div>
 
-    <button onclick="showScreen('date')">Zurück</button>
+    <button onclick="showScreen('date_menu')">Zurück</button>
 </div>
 
 <!-- ================= GAME SCREEN (NEU) ================= -->
-<div id="game" class="screen">
+<div id="date_game" class="screen">
     <h1>Spiel läuft</h1>
 
     <div id="gameTask" class="big"></div>
@@ -211,19 +211,19 @@ h1 {
         <option>Sonntag</option>
     </select>
 
-    <button onclick="checkGame()">OK</button>
+    <button onclick="check_Date_Game()">OK</button>
 
     <div id="gameInfo"></div>
 </div>
 
-<!-- ================= GAME END ================= -->
-<div id="gameEnd" class="screen">
+<!-- ================= DATE GAME END ================= -->
+<div id="Date_game_End" class="screen">
     <h1>Spiel beendet</h1>
 
-    <div id="endStats" class="card"></div>
+    <div id="endStatsDate" class="card"></div>
 
-    <button onclick="startGame()">Nochmal spielen</button>
-    <button onclick="showScreen('date')">Menü</button>
+    <button onclick="startDate_Game()">Nochmal spielen</button>
+    <button onclick="showScreen('date_menu')">Menü</button>
 </div>
 
 <!-- ================= SERVICE WORKER ================= -->
@@ -381,7 +381,7 @@ let lastWrong = null;
 let gameStartTime = 0;
 let gameLog = [];
 
-function startGame() {
+function startDate_Game() {
 
     const range = parseInt(document.getElementById("range").value);
     gameTime = parseInt(document.getElementById("timeLimit").value);
@@ -392,13 +392,13 @@ function startGame() {
 
     gameLog = []; // 🆕 LOG RESET
 
-    showScreen("game");
+    showScreen("date_game");
 
     gameStartTime = Date.now();
     gameEndTime = gameStartTime + gameTime * 1000;
 
     nextGameTask(range);
-    startGameTimer();
+    startDateGameTimer();
 }
 
 function nextGameTask(range) {
@@ -422,7 +422,7 @@ function nextGameTask(range) {
     document.getElementById("gameWeekday").value = "";
 }
 
-function checkGame() {
+function check_Date_Game() {
 
     const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 
@@ -447,7 +447,7 @@ function checkGame() {
     nextGameTask(parseInt(document.getElementById("range").value));
 }
 
-function startGameTimer() {
+function startDateGameTimer() {
 
     const interval = setInterval(() => {
 
@@ -460,13 +460,13 @@ function startGameTimer() {
 
         if (remaining <= 0) {
             clearInterval(interval);
-            endGame();
+            end_Date_Game();
         }
 
     }, 250);
 }
 
-function endGame() {
+function end_Date_Game() {
 
     const duration = ((Date.now() - gameStartTime) / 1000).toFixed(1);
 
@@ -495,9 +495,9 @@ function endGame() {
         html += `<p>Keine Fehler 🎉</p>`;
     }
 
-    document.getElementById("endStats").innerHTML = html;
+    document.getElementById("endStatsDate").innerHTML = html;
 
-    showScreen("gameEnd");
+    showScreen("Date_game_End");
 }
 
 </script>
@@ -507,30 +507,32 @@ function endGame() {
     <h1>Flaggen Trainer</h1>
 
     <div class="card">
-        <button onclick="showScreen('flags_practice')">Üben</button>
+        <button onclick="showScreen('flags_practice_choice')">Üben</button>
         <button onclick="showScreen('flags_game_choice')">Spielen</button>
     </div>
 
-    <button onclick="showScreen('start')">Zurück</button>
+    <button onclick="showScreen('start_screen')">Zurück</button>
 </div>
 
 <!-- ================= FLAGGEN ÜBEN ================= -->
-<div id="flags_practice" class="screen">
+<div id="flags_practice_choice" class="screen">
     <h1>Flaggen Üben</h1>
 
     <div class="card">
 
-        <label><input type="checkbox" class="region" value="europe"> Europa</label><br>
-        <label><input type="checkbox" class="region" value="asia"> Asien</label><br>
-        <label><input type="checkbox" class="region" value="africa"> Afrika</label><br>
-        <label><input type="checkbox" class="region" value="oceania"> Australien/Ozeanien</label><br>
-        <label><input type="checkbox" class="region" value="southamerica"> Südamerika</label><br>
-        <label><input type="checkbox" class="region" value="northamerica"> Nordamerika</label><br>
+        <label><input type="checkbox" class="regionPractice" value="europe"> Europa</label><br>
+        <label><input type="checkbox" class="regionPractice" value="asia"> Asien</label><br>
+        <label><input type="checkbox" class="regionPractice" value="africa"> Afrika</label><br>
+        <label><input type="checkbox" class="regionPractice" value="oceania"> Australien/Ozeanien</label><br>
+        <label><input type="checkbox" class="regionPractice" value="southamerica"> Südamerika</label><br>
+        <label><input type="checkbox" class="regionPractice" value="northamerica"> Nordamerika</label><br>
 
         <hr>
 
         <label>
-            <input type="checkbox" id="allFlags" onchange="toggleAllFlags(this)">
+            <input type="checkbox"
+                   id="allFlagsPractice"
+                   onchange="toggleAllFlags(this)">
             Alle Länder
         </label>
 
@@ -546,17 +548,19 @@ function endGame() {
 
     <div class="card">
 
-        <label><input type="checkbox" class="region" value="europe"> Europa</label><br>
-        <label><input type="checkbox" class="region" value="asia"> Asien</label><br>
-        <label><input type="checkbox" class="region" value="africa"> Afrika</label><br>
-        <label><input type="checkbox" class="region" value="oceania"> Australien/Ozeanien</label><br>
-        <label><input type="checkbox" class="region" value="southamerica"> Südamerika</label><br>
-        <label><input type="checkbox" class="region" value="northamerica"> Nordamerika</label><br>
+        <label><input type="checkbox" class="regionGame" value="europe"> Europa</label><br>
+        <label><input type="checkbox" class="regionGame" value="asia"> Asien</label><br>
+        <label><input type="checkbox" class="regionGame" value="africa"> Afrika</label><br>
+        <label><input type="checkbox" class="regionGame" value="oceania"> Australien/Ozeanien</label><br>
+        <label><input type="checkbox" class="regionGame" value="southamerica"> Südamerika</label><br>
+        <label><input type="checkbox" class="regionGame" value="northamerica"> Nordamerika</label><br>
 
         <hr>
 
         <label>
-            <input type="checkbox" id="allFlags" onchange="toggleAllFlags(this)">
+            <input type="checkbox"
+                   id="allFlagsGame"
+                   onchange="toggleAllFlags(this)">
             Alle Länder
         </label>
 
@@ -570,27 +574,79 @@ function endGame() {
 <div id="flags_game" class="screen">
     <h1>Flaggen Spiel</h1>
 
-    <div id="flagCounter" style="position:absolute; top:10px; right:10px;"></div>
+    <div id="flagCounterGame" style="position:absolute; top:10px; right:10px;"></div>
 
-    <div id="flagDisplay"></div>
+    <div id="flagDisplayGame"></div>
 
-    <input list="countryList" id="flagInput" placeholder="Land eingeben">
+    <input list="countryListGame" id="flagInputGame" placeholder="Land eingeben">
 
-    <datalist id="countryList"></datalist>
+    <datalist id="countryListGame"></datalist>
 
-    <button onclick="checkFlag()">OK</button>
-    <button onclick="nextFlag()">Weiter</button>
-    <button id="showAnswerBtn" onclick="showAnswer()">Lösung zeigen</button>
+    <button id="okBtnGame" onclick="checkFlagGame()" disabled>OK</button>
+	<button id="skipBtnGame" onclick="skipFlagGame()">Überspringen</button>
+    <button id="nextBtnGame" onclick="nextFlagGame()" disabled>Weiter</button>
 
-    <div id="flagResult"></div>
+    <div id="flagResultGame"></div>
 
     <button onclick="showScreen('flags_menu')">Beenden</button>
+</div>
+
+<!-- ================= FLAGGEN PRACTICE ================= -->
+<div id="flags_practice" class="screen">
+    <h1>Flaggen Übung</h1>
+
+    <div id="flagCounterPractice" style="position:absolute; top:10px; right:10px;"></div>
+
+    <div id="flagDisplayPractice"></div>
+
+    <input list="countryListPractice" id="flagInputPractice" placeholder="Land eingeben">
+
+    <datalist id="countryListPractice"></datalist>
+
+    <button id="okBtnPractice" onclick="checkFlagPractice()" disabled>OK</button>
+    <button onclick="nextFlagPractice()">Weiter</button>
+    <button id="showAnswerBtnPractice" onclick="showFlagAnswerPractice()">Lösung zeigen</button>
+
+    <div id="flagResultPractice"></div>
+
+    <button onclick="showScreen('flags_menu')">Beenden</button>
+</div>
+
+<!-- ================= FLAG GAME END ================= -->
+<div id="Flag_game_End" class="screen">
+    <h1>Spiel beendet</h1>
+
+    <div id="endStatsFlagGame" class="card"></div>
+
+    <button onclick="startFlagGame()">Nochmal spielen</button>
+    <button onclick="showScreen('flags_menu')">Menü</button>
+</div>
+
+<!-- ================= FLAG PRACTICE END ================= -->
+<div id="Flag_practice_End" class="screen">
+    <h1>Übung beendet</h1>
+
+    <div id="endStatsFlagPractice" class="card"></div>
+
+    <button onclick="startFlagPractice()">Nochmal spielen</button>
+    <button onclick="showScreen('flags_menu')">Menü</button>
 </div>
 
 <script>
 
 // ================= FLAGGEN MODUS =================
 let flagMode = "practice"; // "practice" | "game"
+
+function updateOkButtons() {
+    const gameInput = document.getElementById("flagInputGame");
+    const practiceInput = document.getElementById("flagInputPractice");
+
+    const okGame = document.getElementById("okBtnGame");
+    const okPractice = document.getElementById("okBtnPractice");
+
+    okGame.disabled = gameInput.value.trim().length === 0;
+    okPractice.disabled = practiceInput.value.trim().length === 0;
+}
 
 // ================= FLAGGEN DATEN =================
 
@@ -819,6 +875,13 @@ let currentFlag = null;
 let flagIndex = 0;
 let usedFlags = [];
 
+// ❗ NEU: getrennte Timer sauber
+let flagStartTimeGame = 0;
+let flagStartTimePractice = 0;
+
+// ❗ NEU: Schutz gegen alte Intervalle
+let flagGameInterval = null;
+
 // ================= REGION TOGGLE =================
 
 function toggleAllFlags(checkbox) {
@@ -826,82 +889,38 @@ function toggleAllFlags(checkbox) {
 
     const container = checkbox.closest(".screen");
 
-    container.querySelectorAll(".region").forEach(cb => {
-        cb.checked = all;
-        cb.disabled = all;
-    });
-}
-
-// ================= START PRACTICE =================
-
-function startFlagPractice() {
-    flagMode = "practice";
-
-    const selected = [];
-
-    document.querySelectorAll(".region:checked").forEach(cb => {
-        selected.push(cb.value);
-    });
-
-    if (selected.length === 0) {
-        alert("Bitte mindestens eine Region auswählen");
-        return;
-    }
-
-    flagPool = flagData.filter(f => selected.includes(f.region));
-
-    usedFlags = [];
-    flagIndex = 0;
-
-    loadCountries();
-    showScreen("flags_game");
-    nextFlag();
-
-    applyFlagModeUI();
+    container.querySelectorAll(".regionPractice, .regionGame")
+        .forEach(cb => {
+            cb.checked = all;
+            cb.disabled = all;
+        });
 }
 
 // ================= UI MODE SWITCH =================
 
 function applyFlagModeUI() {
-    const btn = document.getElementById("showAnswerBtn");
-    const datalist = document.getElementById("countryList");
+    const btn = document.getElementById("showAnswerBtnPractice");
 
-    if (flagMode === "game") {
-        btn.style.display = "none"; // ❌ kein Lösung Button im Spiel
-    } else {
-        btn.style.display = "block";
-    }
+    if (!btn) return;
 
-    // Dropdown Verhalten steuern
-    loadCountries();
+    btn.style.display = (flagMode === "game") ? "none" : "block";
 }
 
 // ================= DATENLISTE =================
 
-function loadCountries() {
-    const input = document.getElementById("flagInput");
-    const list = document.getElementById("countryList");
+function loadCountriesGame() {
+    const input = document.getElementById("flagInputGame");
+    const list = document.getElementById("countryListGame");
 
     const query = input.value.trim().toLowerCase();
-
     list.innerHTML = "";
 
-    let source;
+    // 🔒 NEU: erst ab 1 Zeichen Vorschläge zeigen
+    if (query.length < 1) return;
 
-    if (flagMode === "game") {
-        // ❌ SPIEL: nur anzeigen wenn Eingabe vorhanden
-        if (query.length === 0) return;
-        source = flagPool.filter(f =>
-            f.name.toLowerCase().startsWith(query)
-        );
-    } else {
-        // ✔ ÜBUNG: normal
-        source = query.length === 0
-            ? flagPool
-            : flagPool.filter(f =>
-                f.name.toLowerCase().startsWith(query)
-            );
-    }
+    const source = flagPool.filter(f =>
+        f.name.toLowerCase().startsWith(query)
+    );
 
     source.forEach(f => {
         const opt = document.createElement("option");
@@ -910,73 +929,145 @@ function loadCountries() {
     });
 }
 
-// ================= NEXT FLAG =================
+function loadCountriesPractice() {
+    const input = document.getElementById("flagInputPractice");
+    const list = document.getElementById("countryListPractice");
 
-function nextFlag() {
+    const query = input.value.trim().toLowerCase();
+    list.innerHTML = "";
 
-    document.getElementById("flagResult").textContent = "";
+    const source = query.length === 0
+        ? flagPool
+        : flagPool.filter(f => f.name.toLowerCase().startsWith(query));
 
-    const available = flagPool.filter(f =>
-        !usedFlags.includes(f.code)
-    );
+    source.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.name;
+        list.appendChild(opt);
+    });
+}
 
-    if (available.length === 0) {
-        endFlagGame();
-        return;
-    }
+// ================= NEXT FLAG IN GAME =================
+
+function nextFlagGame() {
+    document.getElementById("flagResultGame").textContent = "";
+
+    const available = flagPool.filter(f => !usedFlags.includes(f.code));
+    if (available.length === 0) return endFlagGame();
 
     currentFlag = available[Math.floor(Math.random() * available.length)];
     usedFlags.push(currentFlag.code);
 
-    document.getElementById("flagDisplay").innerHTML = `
-      <div style="
-          display:inline-block;
-          padding:12px;
-          background:#f5f5f5;
-          border:2px solid #ddd;
-          border-radius:12px;
-      ">
-          <img src="flags/${currentFlag.code}.png"
-               style="width:180px;">
-      </div>
+    document.getElementById("flagDisplayGame").innerHTML = `
+        <div style="display:inline-block;padding:12px;background:#f5f5f5;border:2px solid #ddd;border-radius:12px;">
+            <img src="flags/${currentFlag.code}.png" style="width:180px;">
+        </div>
     `;
 
-    document.getElementById("flagInput").value = "";
+	document.getElementById("flagInputGame").disabled = false;
+	document.getElementById("flagInputGame").value = "";
+	document.getElementById("skipBtnGame").disabled = false;
+	document.getElementById("okBtnGame").disabled = true;
+	document.getElementById("nextBtnGame").disabled = true;
 
     updateFlagCounter();
-    loadCountries();
+    loadCountriesGame();
+}
+
+// ================= NEXT FLAG IN PRACTICE =================
+
+function nextFlagPractice() {
+    document.getElementById("flagResultPractice").textContent = "";
+
+    const available = flagPool.filter(f => !usedFlags.includes(f.code));
+    if (available.length === 0) return endFlagPractice();
+
+    currentFlag = available[Math.floor(Math.random() * available.length)];
+    usedFlags.push(currentFlag.code);
+
+    document.getElementById("flagDisplayPractice").innerHTML = `
+        <div style="display:inline-block;padding:12px;background:#f5f5f5;border:2px solid #ddd;border-radius:12px;">
+            <img src="flags/${currentFlag.code}.png" style="width:180px;">
+        </div>
+    `;
+
+    document.getElementById("flagInputPractice").value = "";
+
+    updateFlagCounter();
+    loadCountriesPractice();
 }
 
 // ================= CHECK =================
 
-function checkFlag() {
-    const input = document.getElementById("flagInput").value.trim();
+function checkFlagGame() {
+    const input = document.getElementById("flagInputGame");
+    const value = input.value.trim();
+    if (!currentFlag) return;
+
+    if (value.toLowerCase() === currentFlag.name.toLowerCase()) {
+        document.getElementById("flagResultGame").textContent = "richtig";
+        flagIndex++;
+    } else {
+        document.getElementById("flagResultGame").textContent =
+            "falsch, richtig war: " + currentFlag.name;
+    }
+
+    // 🔒 NEU: Eingabe sperren nach Antwort
+    input.disabled = true;
+	document.getElementById("nextBtnGame").disabled = false;
+	document.getElementById("skipBtnGame").disabled = true;
+}
+
+function skipFlagGame() {
+    if (!currentFlag) return;
+
+    // zählt als falsch
+    document.getElementById("flagResultGame").textContent =
+        "übersprungen, richtig war: " + currentFlag.name;
+
+    gameWrong++;
+
+    // Eingabe wird wie nach OK gesperrt
+    const input = document.getElementById("flagInputGame");
+    input.disabled = true;
+
+    // Buttons umschalten
+    document.getElementById("okBtnGame").disabled = true;
+    document.getElementById("skipBtnGame").disabled = true;
+    document.getElementById("nextBtnGame").disabled = false;
+}
+
+function checkFlagPractice() {
+    const input = document.getElementById("flagInputPractice").value.trim();
+	if (!input) return; // 🔒 extra Schutz
     if (!currentFlag) return;
 
     if (input.toLowerCase() === currentFlag.name.toLowerCase()) {
-        document.getElementById("flagResult").textContent = "richtig";
+        document.getElementById("flagResultPractice").textContent = "richtig";
         flagIndex++;
     } else {
-        document.getElementById("flagResult").textContent =
+        document.getElementById("flagResultPractice").textContent =
             "falsch, richtig war: " + currentFlag.name;
     }
 }
 
 // ================= SHOW ANSWER =================
 
-function showAnswer() {
-    if (flagMode === "game") return;
+function showFlagAnswerPractice() {
     if (!currentFlag) return;
 
-    document.getElementById("flagResult").textContent =
+    document.getElementById("flagResultPractice").textContent =
         "Lösung: " + currentFlag.name;
 }
 
 // ================= COUNTER =================
 
 function updateFlagCounter() {
-    document.getElementById("flagCounter").textContent =
-        usedFlags.length + " / " + flagPool.length;
+    const elGame = document.getElementById("flagCounterGame");
+    const elPractice = document.getElementById("flagCounterPractice");
+
+    if (elGame) elGame.textContent = usedFlags.length + " / " + flagPool.length;
+    if (elPractice) elPractice.textContent = usedFlags.length + " / " + flagPool.length;
 }
 
 // ================= END GAME =================
@@ -988,7 +1079,7 @@ function startFlagGame() {
 
     const selected = [];
 
-    document.querySelectorAll(".region:checked").forEach(cb => {
+    document.querySelectorAll(".regionGame:checked").forEach(cb => {
         selected.push(cb.value);
     });
 
@@ -997,51 +1088,110 @@ function startFlagGame() {
         return;
     }
 
-    // gleiche Logik wie Übung: gefilterter Pool
     flagPool = flagData.filter(f => selected.includes(f.region));
 
     usedFlags = [];
     flagIndex = 0;
 
-    flagStartTime = Date.now(); // bleibt wichtig für Endscreen-Timer
+    // ❗ FIX: alter Timer stoppen
+    if (flagGameInterval) clearInterval(flagGameInterval);
 
-    loadCountries();
+    flagStartTimeGame = Date.now();
+
     showScreen("flags_game");
-    nextFlag();
+    nextFlagGame();
 
     applyFlagModeUI();
 }
 
 function endFlagGame() {
 
-    const duration = ((Date.now() - flagStartTime) / 1000).toFixed(1);
+    const durationRaw = (Date.now() - flagStartTimeGame) / 1000;
 
-    let html = `
+    // ❗ Schutz gegen kaputte Werte
+    const duration = isFinite(durationRaw) && durationRaw > 0
+        ? durationRaw.toFixed(1)
+        : "0.0";
+
+    const html = `
         <p><b>Zeit:</b> ${duration}s</p>
         <p><b>Richtig beantwortet:</b> ${flagIndex}</p>
         <p><b>Gesamt:</b> ${flagPool.length}</p>
     `;
 
-    document.getElementById("endStats").innerHTML = html;
+    document.getElementById("endStatsFlagGame").innerHTML = html;
 
-    showScreen("gameEnd"); // nutzt deinen bestehenden Endscreen
+    showScreen("Flag_game_End");
+}
+
+// ================= START PRACTICE =================
+
+function startFlagPractice() {
+    flagMode = "practice";
+
+    const selected = [];
+
+    document.querySelectorAll(".regionPractice:checked").forEach(cb => {
+        selected.push(cb.value);
+    });
+
+    if (selected.length === 0) {
+        alert("Bitte mindestens eine Region auswählen");
+        return;
+    }
+
+    flagPool = flagData.filter(f => selected.includes(f.region));
+
+    usedFlags = [];
+    flagIndex = 0;
+
+    // ❗ FIX: Timer getrennt
+    flagStartTimePractice = Date.now();
+
+    showScreen("flags_practice");
+    nextFlagPractice();
+
+    applyFlagModeUI();
+}
+
+function endFlagPractice() {
+
+    const durationRaw = (Date.now() - flagStartTimePractice) / 1000;
+
+    const duration = isFinite(durationRaw) && durationRaw > 0
+        ? durationRaw.toFixed(1)
+        : "0.0";
+
+    const html = `
+        <p><b>Zeit:</b> ${duration}s</p>
+        <p><b>Richtig beantwortet:</b> ${flagIndex}</p>
+        <p><b>Gesamt:</b> ${flagPool.length}</p>
+    `;
+
+    document.getElementById("endStatsFlagPractice").innerHTML = html;
+
+    showScreen("Flag_practice_End");
 }
 
 // ================= INPUT LISTENER =================
 
-document.getElementById("flagInput")
-    .addEventListener("input", (e) => {
-        // Wenn ein kompletter Ländername gewählt wurde → KEIN reload
-        const value = e.target.value.trim().toLowerCase();
+document.getElementById("flagInputGame").addEventListener("input", (e) => {
+    const value = e.target.value.trim().toLowerCase();
+    const exactMatch = flagPool.some(f => f.name.toLowerCase() === value);
 
-        const exactMatch = flagPool.some(f =>
-            f.name.toLowerCase() === value
-        );
+    if (!exactMatch) loadCountriesGame();
+    
+    updateOkButtons(); // 🆕
+});
 
-        if (!exactMatch) {
-            loadCountries();
-        }
-    });
+document.getElementById("flagInputPractice").addEventListener("input", (e) => {
+    const value = e.target.value.trim().toLowerCase();
+    const exactMatch = flagPool.some(f => f.name.toLowerCase() === value);
+
+    if (!exactMatch) loadCountriesPractice();
+
+    updateOkButtons(); // 🆕
+});
 	
 </script>
 
